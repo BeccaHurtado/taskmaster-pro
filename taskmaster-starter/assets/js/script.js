@@ -6,7 +6,7 @@ var createTask = function(taskText, taskDate, taskList) {
   var taskSpan = $("<span>")
     .addClass("badge badge-primary badge-pill")
     .text(taskDate);
-  var taskP = $("<form>")
+  var taskP = $("<p>")
     .addClass("m-1")
     .text(taskText);
 
@@ -100,7 +100,7 @@ $(".list-group").on("click", "p", function(){
 // editable field was un-focused
 $(".list-group").on("blur", "textarea", function(){
   //get the textarea's current value/text
-  var text = $(this).val()
+  var text = $(this).val();
   
     // get the parents ul's id atribute
     var status = $(this)
@@ -117,11 +117,11 @@ $(".list-group").on("blur", "textarea", function(){
 
     // recreate p element
     var taskP = $("<p>")
-    .addClass(m-1)
+    .addClass("m-1")
     .text(text);
 
     // replace textarea with p element
-    $(this).replaceWith(taskP)
+    $(this).replaceWith(taskP);
 });
 
 // value of due date was changed
