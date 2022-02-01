@@ -31,7 +31,6 @@ var loadTasks = function() {
     };
   }
 
-  // loop over object properties
   $.each(tasks, function(list, arr) {
     console.log(list, arr);
     // then loop over sub-array
@@ -44,6 +43,75 @@ var loadTasks = function() {
 var saveTasks = function() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
+
+// list items sortable
+$(".card .list-group").sortable({
+  connectWith: $(".card .list-group"),
+  scroll: false,
+  tolerance: "pointer",
+  helper: "clone",
+  activate: function(event, ui) {
+    console.log("ui")
+  },
+  deactivate: function(event, ui) {
+    console.log("ui");
+  },
+  over: function(event) {
+    console.log(event);
+  },
+  out: function(event) {
+    console.log(event);
+  },
+  update: function(event) {
+    // array to store the task data in
+    var tempArr = [];
+
+    // loop over current set of children in sortable list
+    $(this).children()
+    .each(function() {
+      // add task data to the temp array as an object
+      tempArr.push({
+        text: $(this)
+        .find("p")
+        .text()
+        .trim(),
+        
+        date: $(this)
+        .find("span")
+        .text()
+        .trim()
+      });
+     });
+
+    // rim down list's ID to match object property
+    var arrName = $(this)
+      .attr("id")
+      .replace("list-", "");
+
+    // update array on tasks object and save
+    tasks[arrName] = tempArr;
+    saveTasks();
+  },
+  stop: function(event) {
+    $(this).removeClass("dropover");
+  }
+});
+
+$("#trash").droppable({
+  accept: ".card .list-group-item",
+  tolerance: "touch",
+  drop: function(event, ui) 
+  // re,ove dragged element from the dom
+  { 
+  ui.draggable.remove();
+  },
+  over: function(event, ui) {
+    console.log(ui);
+  },
+  out: function(event, ui) {
+    console.log(ui)
+  }
+});
 
 
 
@@ -111,7 +179,7 @@ $(".list-group").on("blur", "textarea", function(){
       .closest(".list-group-item")
       .index();
     
-      // update task in array and re-save to localstorage
+    // update task in array and re-save to localstorage
     tasks[status][index].text = text;
     saveTasks();
 
@@ -122,37 +190,6 @@ $(".list-group").on("blur", "textarea", function(){
 
     // replace textarea with p element
     $(this).replaceWith(taskP);
-});
-
-// value of due date was changed
-$(".list-group").on("blur", "input[type='text']", function(){
-  // get current text
-  var date = $(this)
-    .val()
-    .trim();
-
-  // get the parents ul's id attribute
-  var status = $(this)
-    .closest(".list-group")
-    .attr("id")
-    .replace("list-", "");
-
-    // get the task's position in the list of other li elements
-    var index = $(this)
-      .closest(".list-group-item")
-      .index();
-
-    // update task in array and re-save to local storage
-    tasks[status][index].date = date;
-    saveTasks();
-
-    //recreate span element with bootstrap classes
-    var taskSpan = $("<span>")
-      .addClass("badge badge-primary badge-pill")
-      .text(date);
-
-    // replace input with span elemnt
-    $(this).replaceWith(taskSpan);  
 });
 
 // due date was clicked
@@ -167,12 +204,37 @@ $(".list-group").on("click", "span", function(){
   .attr("type", "text")
   .addClass("form-control")
   .val(date);
-
   //swap out elements
   $(this).replaceWith(dateInput);
-
   // automatically focus on new element
   dateInput.trigger("focus");
+});
+
+// value of due date was changed
+$(".list-group").on("change", "input[type='text']", function(){
+  // get current text
+  var date = $(this).val();
+
+  // get the parents ul's id attribute
+  var status = $(this)
+    .closest(".list-group")
+    .attr("id")
+    .replace("list-", "");
+    // get the task's position in the list of other li elements
+    var index = $(this)
+      .closest(".list-group-item")
+      .index();
+
+    // update task in array and re-save to local storage
+    tasks[status][index].date = date;
+    saveTasks();
+
+    //recreate span element with bootstrap classes
+    var taskSpan = $("<span>")
+      .addClass("badge badge-primary badge-pill")
+      .text(date);
+    // replace input with span elemnt
+    $(this).replaceWith(taskSpan);  
 });
 
 // remove all tasks
@@ -181,6 +243,7 @@ $("#remove-tasks").on("click", function() {
     tasks[key].length = 0;
     $("#list-" + key).empty();
   }
+  console.log(tasks);
   saveTasks();
 });
 
